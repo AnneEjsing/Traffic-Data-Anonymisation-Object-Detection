@@ -1,10 +1,5 @@
-from werkzeug.datastructures import FileStorage
-import os
 from aiohttp import web
-import aiohttp_cors
 import asyncio
-import requests
-import subprocess as sp
 
 routes = web.RouteTableDef()
 
