@@ -1,0 +1,1 @@
+This folder holds the final model used for object detection
