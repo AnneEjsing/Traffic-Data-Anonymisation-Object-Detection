@@ -36,9 +36,9 @@ TEST_IMAGE_PATHS = [PATH_TO_TEST_IMAGES_DIR + '/' +
                     p.replace('._', '') for p in TEST_IMAGE_PATHS]
 
 video_path = "00001.mp4"
+model_dir = "fine_tuned_model/saved_model"
 
 def load_model():
-  model_dir = "fine_tuned_model/saved_model"
   model = tf.saved_model.load(str(model_dir),None)
   model = model.signatures['serving_default']
 
@@ -107,6 +107,11 @@ def generate_frames(model):
 #    proc = sp.Popen(command, stdin=sp.PIPE,shell=False)
 
     while success:
+      #If a new model is present, excahnge this with the old model.
+      if "new_model.pb" in os.listdir(model_dir):
+            sp.call("mv " + model_dir + "/new_model.pb " + model_dir + "/saved_model.pb", shell=True)
+            model = load_model()
+
       success, frame = vidcap.read()
       annotated_frame = show_inference(model, np.array(frame))
       writer.write(annotated_frame)
