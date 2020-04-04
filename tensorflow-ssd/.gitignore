@@ -100,6 +100,7 @@ ENV/
 
 # Images
 images/*.png
+images/*.jpg
 annotations/xmls/*.xml
 
 fine_tuned_model/model*
@@ -113,3 +114,8 @@ checkpoints/saved_model*
 checkpoints/pipeline.config
 checkpoints/checkpoint
 checkpoints/frozen*
+
+train/*
+tf_record/*
+
+research/object_detection/protos/*
