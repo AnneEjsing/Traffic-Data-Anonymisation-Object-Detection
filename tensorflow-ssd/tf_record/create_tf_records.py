@@ -3,10 +3,12 @@ import os
 from PIL import Image
 import xml.etree.ElementTree as ET
 import random
+import numpy as np
+import argparse
 
-extension = ".record"
-xml_path = "../annotations/xmls"
-image_path = "../images"
+extension = ".record-000"
+xml_path = "annotations/xmls"
+image_path = "images"
 
 
 def int64_feature(value):
@@ -37,13 +39,17 @@ classtext_to_label = {
 
 def create_tf_example(example):
     currentNameSplit = example.split('.')[0]
-    currentImageName = currentNameSplit + '.png'
+    if "_" in currentNameSplit:
+        currentImageName = currentNameSplit + '.jpg'
+        image_format = b'jpeg'
+    else:
+        currentImageName = currentNameSplit + '.png'
+        image_format = b'png'
 
     with tf.io.gfile.GFile(os.path.join(image_path, '{}'.format(currentImageName)), 'rb') as fid:
         encoded_image_data = fid.read()
 
     filename = currentNameSplit.encode('utf8')
-    image_format = b'png'
 
     tree = ET.parse(xml_path+"/"+example)
     root = tree.getroot()
@@ -82,11 +88,12 @@ def create_tf_example(example):
     return tf_example
 
 
-def make_tf_record(examples, name):
-    writer = tf.io.TFRecordWriter(name+extension)
+def make_tf_record(examples, name, i):
+    writer = tf.io.TFRecordWriter(name+extension+str(i)+"-00010")
     for example in examples:
         tf_example = create_tf_example(example)
         writer.write(tf_example.SerializeToString())
+
     writer.close()
 
 
@@ -109,7 +116,15 @@ def partition(examples, test_percent):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--shards", help="The number of shards desired",
+                        type=int)
+    args = parser.parse_args()
+
     examples = os.listdir(xml_path)
     train, val = partition(examples, test_percent=.2)
-    make_tf_record(train, "train")
-    make_tf_record(val, "val")
+    num_shards=args.shards
+    train_shards = np.array_split(train, num_shards)
+    for i,t in enumerate(train_shards):
+        make_tf_record(t, "train",i)
+    make_tf_record(val, "val",0)
