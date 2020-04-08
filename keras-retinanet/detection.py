@@ -37,7 +37,7 @@ def detect_one_image(image):
       # scores are sorted so we can break
       if score < 0.5:
           break
-      print(box)
+      
       (x1,y1,x2,y2) = box
       x1,y1,x2,y2 = int(x1), int(y1), int(x2), int(y2)
       if blur:
@@ -46,7 +46,7 @@ def detect_one_image(image):
 
           #Create a blurred image of the area
           #   OBS: Region size has to be odd numbers!!!
-          blurred_region = cv2.GaussianBlur(region,(51,51),0)
+          blurred_region = cv2.blur(region,(21,21))
 
           #Set the area of interest to the blurred image of that area.
           draw[y1:y1+blurred_region.shape[0],x1:x1+blurred_region.shape[1]] = blurred_region
