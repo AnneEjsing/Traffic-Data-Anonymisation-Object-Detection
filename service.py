@@ -10,11 +10,11 @@ async def receive_model(request):
     path = ""
 
     extension = input_file.filename.split('.')[1]
-    if extension is "pb":
+    if extension == "pb":
         path = "tensorflow-ssd/fine_tuned_model/saved_model/new_model.pb"
-    elif extension is "m5":
+    elif extension == "m5":
         path = "keras-retinanet/new_model.h5"
-    else:
+    else: 
         return web.Response(status=415) #Unsupported media type
 
 
