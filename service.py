@@ -6,16 +6,25 @@ routes = web.RouteTableDef()
 @routes.post("/model/upload")
 async def receive_model(request):
     data = await request.post()
-    path = "tensorflow-ssd/fine_tuned_model/saved_model/new_model.pb"
-
     input_file = data['file']
+    path = ""
 
-    with open(path, 'w') as f:
-        f.write(input_file)
+    extension = input_file.filename.split('.')[1]
+    if extension is "pb":
+        path = "tensorflow-ssd/fine_tuned_model/saved_model/new_model.pb"
+    elif extension is "m5":
+        path = "keras-retinanet/new_model.h5"
+    else:
+        return web.Response(status=415) #Unsupported media type
+
+
+    with open(path, 'w+b') as f:
+        content = input_file.file.read()
+        f.write(content)
 
     return web.Response(status=200)
 
 if __name__ == "__main__":  
-    app = web.Application()
+    app = web.Application(client_max_size=0)
     app.add_routes(routes)
     web.run_app(app, host='0.0.0.0', port=5000)
