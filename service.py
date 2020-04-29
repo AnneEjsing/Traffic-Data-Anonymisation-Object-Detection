@@ -7,11 +7,15 @@ routes = web.RouteTableDef()
 async def receive_model(request):
     data = await request.post()
     input_file = data['file']
+    type = data['type']
     path = ""
 
     extension = input_file.filename.split('.')[1]
     if extension == "pb":
-        path = "tensorflow-ssd/fine_tuned_model/saved_model/new_model.pb"
+        if type == "face":
+            path = "tensorflow-ssd/fine_tuned_model/face/saved_model/new_model.pb"
+        elif type == "license":
+            path = "tensorflow-ssd/fine_tuned_model/license/saved_model/new_model.pb"
     elif extension == "m5":
         path = "keras-retinanet/new_model.h5"
     else: 
