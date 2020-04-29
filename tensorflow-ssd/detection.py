@@ -100,8 +100,9 @@ def show_inference(license_model, face_model, frame):
     show_bounding_boxes(frame,face_output_dict, category_index_face)
 
     # Uncomment this, if you want to see the detections on the image.
-    cv2.imshow('image', frame)
-    cv2.waitKey(1)
+    #cv2.imshow('image', frame)
+    #cv2.waitKey(1)
+    
     return frame
 
 
@@ -112,19 +113,19 @@ def generate_frames(license_model, face_model):
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     success = True
-    # command = ['ffmpeg',
-    #    '-y',
-    #    '-f', 'rawvideo',
-    #    '-vcodec', 'rawvideo',
-    #    '-pix_fmt', 'bgr24',
-    #    '-s', str(width)+'x'+str(height),
-    #    '-i', '-',
-    #    '-c:v', 'libx264',
-    #    '-pix_fmt', 'yuv420p',
-    #    '-preset', 'ultrafast',
-    #    '-f', 'flv',
-    #    'rtmp://localhost:1935/show/test']
-    # proc = sp.Popen(command, stdin=sp.PIPE,shell=False)
+    command = ['ffmpeg',
+        '-y',
+        '-f', 'rawvideo',
+        '-vcodec', 'rawvideo',
+        '-pix_fmt', 'bgr24',
+        '-s', str(width)+'x'+str(height),
+        '-i', '-',
+        '-c:v', 'libx264',
+        '-pix_fmt', 'yuv420p',
+        '-preset', 'ultrafast',
+        '-f', 'flv',
+        'rtmp://localhost:1935/show/test']
+    proc = sp.Popen(command, stdin=sp.PIPE,shell=False)
 
     while success:
         # If a new model is present, excahnge this with the old model.
@@ -140,7 +141,7 @@ def generate_frames(license_model, face_model):
         success, frame = vidcap.read()
         annotated_frame = show_inference(
             license_model, face_model, np.array(frame))
-        # proc.stdin.write(annotated_frame.tostring())
+        proc.stdin.write(annotated_frame.tostring())
 
 
 if __name__ == '__main__':
