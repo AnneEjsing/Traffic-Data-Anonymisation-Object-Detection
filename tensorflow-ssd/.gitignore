@@ -146,5 +146,5 @@ fine_tuned_model/license/*
 !fine_tuned_model/license/readme.txt
 
 
-research/object_detection/protos/.py*
+research/object_detection/protos/*.py
 *.mp4
