@@ -58,12 +58,15 @@ Before you can train your custom object detector, you must convert your data int
 This script supports sharding. If the number of images exceeds it is beneficial to split the tfrecords into more. The number of shards is given as an input parameter. This script is preconfigured to do 80–20 train-val split. Execute it by running:
 
 ```
-# From tensorflow-ssd directory
-$ python3 tf_record/create_tf_record.py -s 2
-
-# or
-$ python3 tf_record/create_tf_record.py --shards 2
+# From tensorflow-ssd directory 
+$ python3 tf_record/create_tf_record.py
 ```
+
+It has three flags being -f, -l and -s. 
+-f creates records for face data (default: false)
+-l creates records for license plate data (default: false)
+-fl / -lf creates records for both.
+-s indicates the number of shards to create (defualt: 1)
 
 <h2>Training</h2>
 Training must be done using tensorflow 1.x. Therefore, if you have tensorflow 2.x installed run the following
@@ -72,12 +75,22 @@ Training must be done using tensorflow 1.x. Therefore, if you have tensorflow 2.
 $ pip3 install tensorflow==1.15
 ```
 
-Train using model_main.py (from research folder)
+<h3>Train using model_main.py (from research folder)</h3>
+
+TRAIN WITH LICENSE PLATES
+
 ```
-python3 object_detection/model_main.py --pipeline_config_path=object_detection/samples/configs/ssd_mobilenet_v2_coco.config --model_dir=train --logtostderr
+python3 object_detection/model_main.py --pipeline_config_path=object_detection/samples/configs/ssd_mobilenet_v2_coco.config --model_dir=../train/license --logtostderr
 ```
 
-Enable tensorboard (from train folder)
+TRAIN WITH FACES
+
+```
+python3 object_detection/model_main.py --pipeline_config_path=object_detection/samples/configs/ssd_mobilenet_v1_coco.config --model_dir=../train/face --logtostderr
+```
+
+
+Enable tensorboard (from either train/face or train/license folder)
 ```
 tensorboard --logdir=./
 ```
@@ -90,6 +103,13 @@ $ mkdir fine_tuned_model
 
 $ python3 research/object_detection/export_inference_graph.py --input_type image_tensor --pipeline_config_path research/object_detection/samples/configs/ssd_mobilenet_v2_coco.config --trained_checkpoint_prefix  train/model.ckpt-<the_highest_checkpoint_number>  --output_directory fine_tuned_model
 ```
+
+WRITE DOCUMENTATION ON FACE EXPORT
+
+python3 research/object_detection/export_inference_graph.py --input_type image_tensor --pipeline_config_path research/object_detection/samples/configs/ssd_mobilenet_v1_coco.config --trained_checkpoint_prefix  face_model/model.ckpt --output_directory fine_tuned_model_face
+
+  # Add global step to the graph.
+  slim.get_or_create_global_step()
 
 
 <h2>Run Detection</h2>

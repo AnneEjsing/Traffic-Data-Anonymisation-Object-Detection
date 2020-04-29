@@ -1,0 +1,1 @@
+This folder holds the checkpoints created during training of the licens plate model
