@@ -103,19 +103,9 @@ images/*.png
 images/*.jpg
 annotations/xmls/*.xml
 
-fine_tuned_model/model*
-fine_tuned_model/saved_model*
-fine_tuned_model/pipeline.config
-fine_tuned_model/checkpoint
-fine_tuned_model/frozen*
-
-checkpoints/model*
-checkpoints/saved_model*
-checkpoints/pipeline.config
-checkpoints/checkpoint
-checkpoints/frozen*
-
+fine_tuned_model/
+checkpoints/
 train/*
 tf_record/*
-
 research/object_detection/protos/*
+*.mp4
