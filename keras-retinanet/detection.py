@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 import subprocess as sp
+import os
 
 # import keras_retinanet
 from keras_retinanet import models
@@ -11,13 +12,11 @@ from keras_retinanet.utils.colors import label_color
 from keras_retinanet.utils.gpu import setup_gpu
 
 model_path = 'model.h5'
-model = models.load_model(model_path, backbone_name="resnet50") # https://github.com/fizyr/keras-retinanet/releases
-#imgPath = "test.png"
 video_path = "00001.mp4"
 labels_to_names = {0: 'head', 1: 'license_plate'}
 blur = True
 
-def detect_one_image(image):
+def detect_one_image(image, model):
   draw = image.copy()
 
   # preprocess image for network
@@ -37,7 +36,7 @@ def detect_one_image(image):
       # scores are sorted so we can break
       if score < 0.5:
           break
-      print(box)
+      
       (x1,y1,x2,y2) = box
       x1,y1,x2,y2 = int(x1), int(y1), int(x2), int(y2)
       if blur:
@@ -46,7 +45,7 @@ def detect_one_image(image):
 
           #Create a blurred image of the area
           #   OBS: Region size has to be odd numbers!!!
-          blurred_region = cv2.GaussianBlur(region,(51,51),0)
+          blurred_region = cv2.blur(region,(21,21))
 
           #Set the area of interest to the blurred image of that area.
           draw[y1:y1+blurred_region.shape[0],x1:x1+blurred_region.shape[1]] = blurred_region
@@ -59,7 +58,7 @@ def detect_one_image(image):
           draw_caption(draw, b, caption)
   return draw
 
-def generate_frames():
+def generate_frames(model):
   # Load video file
   vidcap = cv2.VideoCapture(video_path)
   pipeline_out = "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency threads=2 byte-stream=true ! flvmux ! rtmpsink location='rtmp://0.0.0.0:1935/show/stream" # Create RTMP 
@@ -71,11 +70,16 @@ def generate_frames():
   success = True
 
   while success:
+    # If a new model is present, excahnge this with the old model.
+    if "new_model.h5" in os.listdir():
+        sp.call("mv new_model.m5 model.m5", shell=True)
+        model = models.load_model(model_path, backbone_name="resnet50")
     success, frame = vidcap.read()
-    annotated_frame = detect_one_image(frame)
+    annotated_frame = detect_one_image(frame, model)
     writer.write(frame)
 
 if __name__ == '__main__':
-    generate_frames()
+    model = models.load_model(model_path, backbone_name="resnet50") # https://github.com/fizyr/keras-retinanet/releases
+    generate_frames(model)
 
 
