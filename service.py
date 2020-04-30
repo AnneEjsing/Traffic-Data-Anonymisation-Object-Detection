@@ -15,7 +15,7 @@ async def receive_model(request):
         if type == "face":
             path = "tensorflow-ssd/fine_tuned_model/face/saved_model/new_face_model.pb"
         elif type == "license_plate":
-            path = "tensorflow-ssd/fine_tuned_model/license/saved_model/new_license_plate_model.pb" 
+            path = "tensorflow-ssd/fine_tuned_model/license_plate/saved_model/new_license_plate_model.pb" 
     elif extension == "m5":
         path = "keras-retinanet/new_model.h5"
     else: 

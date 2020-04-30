@@ -47,5 +47,5 @@ def protobuf_to_checkpoint_conversion(pb_model, ckpt_dir):
     return graph, vars_dict
 
 if __name__ == "__main__":
-    protobuf_to_checkpoint_conversion("checkpoint_face/frozen_inference_graph_face.pb", "checkpoint_face")
+    protobuf_to_checkpoint_conversion("checkpoints/face/frozen_inference_graph_face.pb", "checkpoints/face")
     
