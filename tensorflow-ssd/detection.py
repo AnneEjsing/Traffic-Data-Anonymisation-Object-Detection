@@ -30,8 +30,8 @@ PATH_TO_FACE_LABELS = "annotations/label_map_face.pbtxt"
 category_index_face = label_map_util.create_category_index_from_labelmap(
     PATH_TO_FACE_LABELS, use_display_name=True)
 
-PATH_TO_LICENSE_PLATE_LABELS = "annotations/label_map_license.pbtxt"
-category_index_license = label_map_util.create_category_index_from_labelmap(
+PATH_TO_LICENSE_PLATE_LABELS = "annotations/label_map_license_plate.pbtxt"
+category_index_license_plate = label_map_util.create_category_index_from_labelmap(
     PATH_TO_LICENSE_PLATE_LABELS, use_display_name=True)
 
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
@@ -40,19 +40,19 @@ TEST_IMAGE_PATHS = sorted(list(os.listdir(PATH_TO_TEST_IMAGES_DIR)))
 TEST_IMAGE_PATHS = [PATH_TO_TEST_IMAGES_DIR + '/' +
                     p.replace('._', '') for p in TEST_IMAGE_PATHS]
 
-video_path = "00003.mp4"
-license_model_dir = "fine_tuned_model/license/saved_model"
+video_path = "00001.mp4"
+license_plate_model_dir = "fine_tuned_model/license_plate/saved_model"
 face_model_dir = "fine_tuned_model/face/saved_model"
 
 
 def load_model():
-    license_model = tf.saved_model.load(str(license_model_dir), None)
-    license_model = license_model.signatures['serving_default']
+    license_plate_model = tf.saved_model.load(str(license_plate_model_dir), None)
+    license_plate_model = license_plate_model.signatures['serving_default']
 
     face_model = tf.saved_model.load(str(face_model_dir), None)
     face_model = face_model.signatures['serving_default']
 
-    return license_model, face_model
+    return license_plate_model, face_model
 
 def prettify_output_dict(output_dict):
     # All outputs are batches tensors.
@@ -68,7 +68,7 @@ def prettify_output_dict(output_dict):
         np.int64)
     return output_dict
 
-def run_inference_for_single_image(license_model,face_model, image):
+def run_inference_for_single_image(license_plate_model,face_model, image):
     image = np.asarray(image)
     # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
     input_tensor = tf.convert_to_tensor(image)
@@ -76,10 +76,10 @@ def run_inference_for_single_image(license_model,face_model, image):
     input_tensor = input_tensor[tf.newaxis, ...]
 
     # Run inference
-    license_output_dict = license_model(input_tensor)
+    license_plate_output_dict = license_plate_model(input_tensor)
     face_output_dict = face_model(input_tensor)
 
-    return prettify_output_dict(license_output_dict), prettify_output_dict(face_output_dict)
+    return prettify_output_dict(license_plate_output_dict), prettify_output_dict(face_output_dict)
 
 def show_bounding_boxes(frame, output_dict, index):
     vis_util.visualize_boxes_and_labels_on_image_array(
@@ -91,12 +91,12 @@ def show_bounding_boxes(frame, output_dict, index):
         use_normalized_coordinates=True)
 
 
-def show_inference(license_model, face_model, frame):
+def show_inference(license_plate_model, face_model, frame):
     # Actual detection.
-    license_output_dict, face_output_dict = run_inference_for_single_image(license_model,face_model, frame)
+    license_plate_output_dict, face_output_dict = run_inference_for_single_image(license_plate_model,face_model, frame)
     
     # Visualization of the results of a detection.
-    show_bounding_boxes(frame,license_output_dict, category_index_license)
+    show_bounding_boxes(frame,license_plate_output_dict, category_index_license_plate)
     show_bounding_boxes(frame,face_output_dict, category_index_face)
 
     # Uncomment this, if you want to see the detections on the image.
@@ -106,7 +106,7 @@ def show_inference(license_model, face_model, frame):
     return frame
 
 
-def generate_frames(license_model, face_model):
+def generate_frames(license_plate_model, face_model):
     # Load video file
     vidcap = cv2.VideoCapture(video_path)
     fps = 10
@@ -130,20 +130,18 @@ def generate_frames(license_model, face_model):
     while success:
         # If a new model is present, excahnge this with the old model.
         if "new_face.pb" in os.listdir(face_model_dir):
-            sp.call("mv " + face_model + "/new_model.pb " +
-                    face_model + "/saved_model.pb", shell=True)
+            sp.call(f"mv {face_model_dir}/new_face_model.pb {face_model_dir}/saved_model.pb", shell=True)
             model = load_model()
-        if "new_license.pb" in os.listdir(license_model_dir):
-            sp.call("mv " + license_model + "/new_model.pb " +
-                    license_model + "/saved_model.pb", shell=True)
+        if "new_license_plate.pb" in os.listdir(license_plate_model_dir):
+            sp.call(f"mv {license_plate_model_dir}/new_license_plate_model.pb {license_plate_model_dir}/saved_model.pb", shell=True)
             model = load_model()
 
         success, frame = vidcap.read()
         annotated_frame = show_inference(
-            license_model, face_model, np.array(frame))
+            license_plate_model, face_model, np.array(frame))
         proc.stdin.write(annotated_frame.tostring())
 
 
 if __name__ == '__main__':
-    license_model,face_model = load_model()
-    generate_frames(license_model, face_model)
+    license_plate_model,face_model = load_model()
+    generate_frames(license_plate_model, face_model)

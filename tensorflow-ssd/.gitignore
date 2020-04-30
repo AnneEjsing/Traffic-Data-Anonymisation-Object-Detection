@@ -102,48 +102,48 @@ ENV/
 images/*.png
 images/*.jpg
 annotations/xmls/face/*.xml
-annotations/xmls/license/*.xml
+annotations/xmls/license_plate/*.xml
 
 
 # Makes sure only the readme is commited
 !tf_record
 tf_record/*
 !tf_record/face
-!tf_record/license
+!tf_record/license_plate
 tf_record/face/*
-tf_record/license/*
+tf_record/license_plate/*
 !tf_record/face/readme.txt
-!tf_record/license/readme.txt
+!tf_record/license_plate/readme.txt
 
 # Makes sure only the readme is commited
 !train
 train/*
 !train/face
-!train/license
+!train/license_plate
 train/face/*
-train/license/*
+train/license_plate/*
 !train/face/readme.txt
-!train/license/readme.txt
+!train/license_plate/readme.txt
 
 # Makes sure only the readme is commited
 !checkpoints
 checkpoints/*
 !checkpoints/face
-!checkpoints/license
+!checkpoints/license_plate
 checkpoints/face/*
-checkpoints/license/*
+checkpoints/license_plate/*
 !checkpoints/face/readme.txt
-!checkpoints/license/readme.txt
+!checkpoints/license_plate/readme.txt
 
 # Makes sure only the readme is commited
 !fine_tuned_model
 fine_tuned_model/*
 !fine_tuned_model/face
-!fine_tuned_model/license
+!fine_tuned_model/license_plate
 fine_tuned_model/face/*
-fine_tuned_model/license/*
+fine_tuned_model/license_plate/*
 !fine_tuned_model/face/readme.txt
-!fine_tuned_model/license/readme.txt
+!fine_tuned_model/license_plate/readme.txt
 
 
 research/object_detection/protos/*.py

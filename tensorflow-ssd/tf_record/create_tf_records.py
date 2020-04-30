@@ -110,7 +110,7 @@ def partition(examples, test_percent):
     trainingSet = examples[:]
     return (trainingSet), (testSet)
 
-def new_name_please(path, shards):
+def initialise_and_run(path, shards):
     examples = os.listdir(xml_path+'/'+path)
     train, val = partition(examples, test_percent=.2)
     num_shards=shards
@@ -124,12 +124,12 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--shards", help="The number of shards desired",
                         type=int, default=1)
     parser.add_argument("-f", "--face", help="Create tfrecord for face data", action='store_true')
-    parser.add_argument("-l", "--license", help="Create tfrecord for license plate data", action='store_true')
+    parser.add_argument("-l", "--license_plate", help="Create tfrecord for license plate data", action='store_true')
     args = parser.parse_args()
 
     if args.face:
-        new_name_please("face", args.shards)
-    if args.license:
-        new_name_please("license", args.shards)
+        initialise_and_run("face", args.shards)
+    if args.license_plate:
+        initialise_and_run("license_plate", args.shards)
 
 

@@ -80,7 +80,7 @@ $ pip3 install tensorflow==1.15
 TRAIN WITH LICENSE PLATES
 
 ```
-python3 object_detection/model_main.py --pipeline_config_path=object_detection/samples/configs/ssd_mobilenet_v2_coco.config --model_dir=../train/license --logtostderr
+python3 object_detection/model_main.py --pipeline_config_path=object_detection/samples/configs/ssd_mobilenet_v2_coco.config --model_dir=../train/license_plate --logtostderr
 ```
 
 TRAIN WITH FACES
@@ -88,7 +88,6 @@ TRAIN WITH FACES
 ```
 python3 object_detection/model_main.py --pipeline_config_path=object_detection/samples/configs/ssd_mobilenet_v1_coco.config --model_dir=../train/face --logtostderr
 ```
-
 
 Enable tensorboard (from either train/face or train/license folder)
 ```
@@ -108,9 +107,6 @@ WRITE DOCUMENTATION ON FACE EXPORT
 
 python3 research/object_detection/export_inference_graph.py --input_type image_tensor --pipeline_config_path research/object_detection/samples/configs/ssd_mobilenet_v1_coco.config --trained_checkpoint_prefix  face_model/model.ckpt --output_directory fine_tuned_model_face
 
-  # Add global step to the graph.
-  slim.get_or_create_global_step()
-
 
 <h2>Run Detection</h2>
 Must be run with tensorflow 2. As training must be done with tensorflow 1.x upgrade tensorflow
@@ -123,5 +119,5 @@ $ pip3 install tensorflow==2.1
 ```
 # From tensorflow-ssd directory
 
-$ python3 research/object_detection/detection.py
+$ python3 detection.py
 ```
