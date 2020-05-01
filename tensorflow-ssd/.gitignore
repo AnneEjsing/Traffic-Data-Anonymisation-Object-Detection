@@ -101,21 +101,50 @@ ENV/
 # Images
 images/*.png
 images/*.jpg
-annotations/xmls/*.xml
+annotations/xmls/face/*.xml
+annotations/xmls/license_plate/*.xml
 
-fine_tuned_model/model*
-fine_tuned_model/saved_model*
-fine_tuned_model/pipeline.config
-fine_tuned_model/checkpoint
-fine_tuned_model/frozen*
 
-checkpoints/model*
-checkpoints/saved_model*
-checkpoints/pipeline.config
-checkpoints/checkpoint
-checkpoints/frozen*
-
-train/*
+# Makes sure only the readme is commited
+!tf_record
 tf_record/*
+!tf_record/face
+!tf_record/license_plate
+tf_record/face/*
+tf_record/license_plate/*
+!tf_record/face/readme.txt
+!tf_record/license_plate/readme.txt
 
-research/object_detection/protos/*
+# Makes sure only the readme is commited
+!train
+train/*
+!train/face
+!train/license_plate
+train/face/*
+train/license_plate/*
+!train/face/readme.txt
+!train/license_plate/readme.txt
+
+# Makes sure only the readme is commited
+!checkpoints
+checkpoints/*
+!checkpoints/face
+!checkpoints/license_plate
+checkpoints/face/*
+checkpoints/license_plate/*
+!checkpoints/face/readme.txt
+!checkpoints/license_plate/readme.txt
+
+# Makes sure only the readme is commited
+!fine_tuned_model
+fine_tuned_model/*
+!fine_tuned_model/face
+!fine_tuned_model/license_plate
+fine_tuned_model/face/*
+fine_tuned_model/license_plate/*
+!fine_tuned_model/face/readme.txt
+!fine_tuned_model/license_plate/readme.txt
+
+
+research/object_detection/protos/*.py
+*.mp4

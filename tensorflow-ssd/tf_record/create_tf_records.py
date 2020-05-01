@@ -37,21 +37,17 @@ classtext_to_label = {
 }
 
 
-def create_tf_example(example):
+def create_tf_example(example, path):
     currentNameSplit = example.split('.')[0]
-    if "_" in currentNameSplit:
-        currentImageName = currentNameSplit + '.jpg'
-        image_format = b'jpeg'
-    else:
-        currentImageName = currentNameSplit + '.png'
-        image_format = b'png'
+    currentImageName = currentNameSplit + '.png'
+    image_format = b'png'
 
     with tf.io.gfile.GFile(os.path.join(image_path, '{}'.format(currentImageName)), 'rb') as fid:
         encoded_image_data = fid.read()
 
     filename = currentNameSplit.encode('utf8')
 
-    tree = ET.parse(xml_path+"/"+example)
+    tree = ET.parse(f"{xml_path}/{path}/{example}")
     root = tree.getroot()
 
     img = Image.open(image_path+"/"+currentImageName)
@@ -88,10 +84,10 @@ def create_tf_example(example):
     return tf_example
 
 
-def make_tf_record(examples, name, i):
-    writer = tf.io.TFRecordWriter(name+extension+str(i)+"-00010")
+def make_tf_record(examples, name, i, path):
+    writer = tf.io.TFRecordWriter(f"tf_record/{path}/{name}{extension}{i}-00010")
     for example in examples:
-        tf_example = create_tf_example(example)
+        tf_example = create_tf_example(example, path)
         writer.write(tf_example.SerializeToString())
 
     writer.close()
@@ -114,17 +110,26 @@ def partition(examples, test_percent):
     trainingSet = examples[:]
     return (trainingSet), (testSet)
 
+def initialise_and_run(path, shards):
+    examples = os.listdir(xml_path+'/'+path)
+    train, val = partition(examples, test_percent=.2)
+    num_shards=shards
+    train_shards = np.array_split(train, num_shards)
+    for i,t in enumerate(train_shards):
+        make_tf_record(t, "train",i, path)
+    make_tf_record(val, "val",0,path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--shards", help="The number of shards desired",
-                        type=int)
+                        type=int, default=1)
+    parser.add_argument("-f", "--face", help="Create tfrecord for face data", action='store_true')
+    parser.add_argument("-l", "--license_plate", help="Create tfrecord for license plate data", action='store_true')
     args = parser.parse_args()
 
-    examples = os.listdir(xml_path)
-    train, val = partition(examples, test_percent=.2)
-    num_shards=args.shards
-    train_shards = np.array_split(train, num_shards)
-    for i,t in enumerate(train_shards):
-        make_tf_record(t, "train",i)
-    make_tf_record(val, "val",0)
+    if args.face:
+        initialise_and_run("face", args.shards)
+    if args.license_plate:
+        initialise_and_run("license_plate", args.shards)
+
+

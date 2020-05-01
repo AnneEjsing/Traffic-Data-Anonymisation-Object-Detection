@@ -1,1 +1,0 @@
-This folder hods the checkpoints created during training.
