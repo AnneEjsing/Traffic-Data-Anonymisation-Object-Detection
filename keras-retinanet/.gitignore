@@ -32,3 +32,4 @@ csv/*/*.csv
 fine_tuned_model/*/*.h5
 snapshots/events*   
 snapshots/*.h5
+*.mp4
