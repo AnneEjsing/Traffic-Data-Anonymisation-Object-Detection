@@ -46,7 +46,7 @@ def detect_one_image(image, face_model, license_plate_model):
     return draw
 
 
-def blur_detections(draw, boxes, scores, labels):
+def blur_detections(draw, boxes, scores, labels): 
   # visualize detections
     for box, score, label in zip(boxes[0], scores[0], labels[0]):
       # scores are sorted so we can break
