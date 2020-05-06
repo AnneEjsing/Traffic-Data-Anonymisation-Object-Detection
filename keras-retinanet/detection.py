@@ -74,7 +74,6 @@ def blur_detections(draw, boxes, scores, labels):
             draw_caption(draw, b, caption)
     return draw
 
-
 def generate_frames(face_model, license_plate_model):
     # Load video file
     vidcap = cv2.VideoCapture(video_path)
@@ -109,6 +108,7 @@ def generate_frames(face_model, license_plate_model):
         success, frame = vidcap.read()
         annotated_frame = detect_one_image(frame, face_model, license_plate_model)
         proc.stdin.write(annotated_frame.tostring())
+
 
 if __name__ == '__main__':
     face_model = models.load_model(face_model_dir+'model.h5', backbone_name="resnet50")
