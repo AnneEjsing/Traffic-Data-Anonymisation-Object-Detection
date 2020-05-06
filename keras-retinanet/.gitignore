@@ -23,3 +23,12 @@ coverage.xml
 *.cover
 
 *.DS_Store
+
+# Images and Annotations
+images/*.png
+images/*.jpg
+annotations/*/*.xml
+csv/*/*.csv
+fine_tuned_model/*/*.h5
+snapshots/events*   
+snapshots/*.h5
