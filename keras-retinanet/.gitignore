@@ -29,7 +29,6 @@ images/*.png
 images/*.jpg
 annotations/*/*.xml
 csv/*/*.csv
-fine_tuned_model/*/*.h5
-snapshots/events*   
-snapshots/*.h5
+snapshots/events*
 *.mp4
+*.h5
