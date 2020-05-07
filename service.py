@@ -17,7 +17,10 @@ async def receive_model(request):
         elif type == "license_plate":
             path = "tensorflow-ssd/fine_tuned_model/license_plate/saved_model/new_license_plate_model.pb" 
     elif extension == "m5":
-        path = "keras-retinanet/new_model.h5"
+        if type == "face":
+            path = "keras-retinanet/fine_tuned_model/face/new_face_model.h5"
+        elif type == "license_plate":
+            path = "keras-retinanet/fine_tuned_model/license_plate/new_license_plate_model.h5" 
     else: 
         return web.Response(status=415) #Unsupported media type
 
