@@ -114,6 +114,7 @@ tf_record/face/*
 tf_record/license_plate/*
 !tf_record/face/readme.txt
 !tf_record/license_plate/readme.txt
+!tf_record/create_tf_records.py
 
 # Makes sure only the readme is commited
 !train
