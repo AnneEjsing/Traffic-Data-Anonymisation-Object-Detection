@@ -96,8 +96,7 @@ def generate_frames(face_model, license_plate_model):
     proc = sp.Popen(command, stdin=sp.PIPE, shell=False)
 
     while success:
-        # If a new model is present, excahnge this with the old model.
-                # If a new model is present, excahnge this with the old model.
+        # If a new model is present, exchange this with the old model.
         if "new_face_model.h5" in os.listdir(face_model_dir):
             sp.call(f"mv {face_model_dir}/new_face_model.h5 {face_model_dir}/model.h5", shell=True)
             face_model = models.load_model(face_model_dir+'model.h5', backbone_name="resnet50")
@@ -114,5 +113,4 @@ if __name__ == '__main__':
     face_model = models.load_model(face_model_dir+'model.h5', backbone_name="resnet50")
     license_plate_model = models.load_model(license_plate_model_dir+'model.h5', backbone_name="resnet50")
     generate_frames(face_model, license_plate_model)
-
 
