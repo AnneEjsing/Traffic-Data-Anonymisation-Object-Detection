@@ -50,7 +50,7 @@ async def start_stream(request):
     return web.Response(status=200)
 
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     app = web.Application(client_max_size=0)
     app.add_routes(routes)
-    web.run_app(app, host='192.168.1.22', port=5000)
+    web.run_app(app, host='0.0.0.0', port=5000)
