@@ -41,7 +41,7 @@ TEST_IMAGE_PATHS = sorted(list(os.listdir(PATH_TO_TEST_IMAGES_DIR)))
 TEST_IMAGE_PATHS = [PATH_TO_TEST_IMAGES_DIR + '/' +
                     p.replace('._', '') for p in TEST_IMAGE_PATHS]
 
-video_path = "00001.mp4"
+video_path = "00001.mp4" #"http://root:pass@192.168.1.110/axis-cgi/mjpg/video.cgi?streamprofile=quality"
 license_plate_model_dir = "fine_tuned_model/license_plate/saved_model"
 face_model_dir = "fine_tuned_model/face/saved_model"
 
@@ -100,13 +100,35 @@ def show_inference(license_plate_model, face_model, frame):
     license_plate_output_dict, face_output_dict = run_inference_for_single_image(license_plate_model,face_model, frame)
     
     # Visualization of the results of a detection.
-    show_bounding_boxes(frame,license_plate_output_dict, category_index_license_plate)
-    show_bounding_boxes(frame,face_output_dict, category_index_face)
+    #show_bounding_boxes(frame,license_plate_output_dict, category_index_license_plate)
+    #show_bounding_boxes(frame,face_output_dict, category_index_face)
 
     # Uncomment this, if you want to see the detections on the image.
     #cv2.imshow('image', frame)
     #cv2.waitKey(1)
-    
+    frame = blur_frame(frame, license_plate_output_dict)
+    frame = blur_frame(frame, face_output_dict)
+
+    return frame
+
+
+def blur_frame(frame, output_dict):
+    im_width = len(frame[0])
+    im_height = len(frame)
+
+    for box, score in zip(output_dict['detection_boxes'], output_dict['detection_scores']):
+        if score < 0.5:
+            break
+
+        (ymin, xmin, ymax, xmax) = box
+        ymin, xmin, ymax, xmax = int(float(ymin) * im_height), int(float(xmin) * im_width), int(float(ymax) * im_height), int(float(xmax) * im_width)
+        if (ymax - ymin <= 0) or (xmax - xmin <= 0):
+            continue
+
+        region = frame[ymin:ymax, xmin:xmax]
+        blurred_region = cv2.blur(region, (21,21))
+        frame[ymin:ymin + blurred_region.shape[0], xmin:xmin + blurred_region.shape[1]] = blurred_region
+
     return frame
 
 
