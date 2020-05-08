@@ -9,6 +9,7 @@ import zipfile
 import pathlib
 import scipy.misc
 import subprocess as sp
+import threading
 
 from collections import defaultdict
 from io import StringIO
@@ -43,6 +44,9 @@ TEST_IMAGE_PATHS = [PATH_TO_TEST_IMAGES_DIR + '/' +
 video_path = "00001.mp4"
 license_plate_model_dir = "fine_tuned_model/license_plate/saved_model"
 face_model_dir = "fine_tuned_model/face/saved_model"
+
+stream = ""
+stop = None
 
 
 def load_model():
@@ -124,10 +128,10 @@ def generate_frames(license_plate_model, face_model):
         '-pix_fmt', 'yuv420p',
         '-preset', 'ultrafast',
         '-f', 'flv',
-        'rtmp://localhost:1935/show/test']
+        stream ]
     proc = sp.Popen(command, stdin=sp.PIPE,shell=False)
 
-    while success:
+    while success and not stop.is_set():
         # If a new model is present, excahnge this with the old model.
         if "new_face.pb" in os.listdir(face_model_dir):
             sp.call(f"mv {face_model_dir}/new_face_model.pb {face_model_dir}/saved_model.pb", shell=True)
@@ -141,7 +145,18 @@ def generate_frames(license_plate_model, face_model):
             license_plate_model, face_model, np.array(frame))
         proc.stdin.write(annotated_frame.tostring())
 
+    if stop.is_set():
+        print("Stopping detection thread")
+        
+    proc.kill()
 
-if __name__ == '__main__':
+
+def start_detection(stream_endpoint, stop_event):
+    global stream, stop
+    stream = stream_endpoint
+    stop = stop_event
     license_plate_model,face_model = load_model()
     generate_frames(license_plate_model, face_model)
+
+if __name__ == '__main__':
+    start_detection("rtmp://localhost:1935/show/stream", threading.Event()) #dummy threading event for when running locally

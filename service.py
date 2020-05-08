@@ -1,7 +1,12 @@
 from aiohttp import web
 import asyncio
+from tensorflow_ssd.detection import start_detection
+import threading
 
 routes = web.RouteTableDef()
+
+detection_thread = None
+stop_event = None
 
 @routes.post("/model/upload")
 async def receive_model(request):
@@ -31,7 +36,24 @@ async def receive_model(request):
 
     return web.Response(status=200)
 
-if __name__ == "__main__":  
+@routes.post("/start")
+async def start_stream(request):
+    global detection_thread, stop_event
+    data = await request.json()
+    stream_endpoint = data['reciever']
+
+    if detection_thread != None:
+        stop_event.set()
+        detection_thread.join()
+
+    stop_event = threading.Event()
+    detection_thread = threading.Thread(target=start_detection, args=(stream_endpoint, stop_event))
+    detection_thread.start()
+
+    return web.Response(status=200)
+
+
+if __name__ == "__main__":
     app = web.Application(client_max_size=0)
     app.add_routes(routes)
     web.run_app(app, host='0.0.0.0', port=5000)
