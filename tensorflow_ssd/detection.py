@@ -41,7 +41,7 @@ TEST_IMAGE_PATHS = sorted(list(os.listdir(PATH_TO_TEST_IMAGES_DIR)))
 TEST_IMAGE_PATHS = [PATH_TO_TEST_IMAGES_DIR + '/' +
                     p.replace('._', '') for p in TEST_IMAGE_PATHS]
 
-video_path = "00001.mp4" #"http://root:pass@192.168.1.110/axis-cgi/mjpg/video.cgi?streamprofile=quality"
+video_path = "00001.mp4"
 license_plate_model_dir = "fine_tuned_model/license_plate/saved_model"
 face_model_dir = "fine_tuned_model/face/saved_model"
 
