@@ -8,33 +8,34 @@ routes = web.RouteTableDef()
 detection_thread = None
 stop_event = None
 
+
 @routes.post("/model/upload")
 async def receive_model(request):
     data = await request.post()
     input_file = data['file']
-    type = data['type']
+    model_type = data['type']
     path = ""
 
     extension = input_file.filename.split('.')[-1]
     if extension == "pb":
-        if type == "face":
-            path = "tensorflow-ssd/fine_tuned_model/face/saved_model/new_face_model.pb"
-        elif type == "license_plate":
-            path = "tensorflow-ssd/fine_tuned_model/license_plate/saved_model/new_license_plate_model.pb" 
+        if model_type == "face":
+            path = "fine_tuned_model/face/saved_model/new_face_model.pb"
+        elif model_type == "license_plate":
+            path = "fine_tuned_model/license_plate/saved_model/new_license_plate_model.pb"
     elif extension == "m5":
-        if type == "face":
+        if model_type == "face":
             path = "keras-retinanet/fine_tuned_model/face/new_face_model.h5"
-        elif type == "license_plate":
-            path = "keras-retinanet/fine_tuned_model/license_plate/new_license_plate_model.h5" 
-    else: 
-        return web.Response(status=415) #Unsupported media type
-
+        elif model_type == "license_plate":
+            path = "keras-retinanet/fine_tuned_model/license_plate/new_license_plate_model.h5"
+    else:
+        return web.Response(status=415)  #Unsupported media type
 
     with open(path, 'w+b') as f:
         content = input_file.file.read()
         f.write(content)
 
     return web.Response(status=200)
+
 
 @routes.post("/start")
 async def start_stream(request):
@@ -47,7 +48,8 @@ async def start_stream(request):
         detection_thread.join()
 
     stop_event = threading.Event()
-    detection_thread = threading.Thread(target=start_detection, args=(stream_endpoint, stop_event))
+    detection_thread = threading.Thread(target=start_detection,
+                                        args=(stream_endpoint, stop_event))
     detection_thread.start()
 
     return web.Response(status=200)
