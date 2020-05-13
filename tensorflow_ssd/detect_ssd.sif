@@ -1,0 +1,71 @@
+Bootstrap: docker
+From: arm64v8/ubuntu:bionic
+
+%files 
+    # Copy all the debian packages from nvidia that are by default on the nano 
+    /var/cuda-repo-10-0-local-10.0.166/ /debs
+    # Copy some local nvidia libraries that are not easy to get from the internet/packages 
+    /usr/lib/aarch64-linux-gnu/libcudnn.so.7.3.1 /usr/lib/aarch64-linux-gnu/libcudnn.so.7.3.1 
+    /usr/lib/aarch64-linux-gnu/libcudnn_static_v7.a /usr/lib/aarch64-linux-gnu/libcudnn_static_v7.a
+
+%post
+    # Create config file(s) required for the install
+    echo "TEGRA_OTA_BOOT_DEVICE /dev/mmcblk0boot0" > /etc/nv_boot_control.conf
+    echo "TEGRA_OTA_GPT_DEVICE /dev/mmcblk0boot1" >> /etc/nv_boot_control.conf
+    echo "TEGRA_CHIPID 0x21" >> /etc/nv_boot_control.conf
+    echo "TNSPEC p2371-2180-devkit.default" >> /etc/nv_boot_control.conf
+
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get -y install apt-utils # Install first to avoid warnings 
+    apt-get -y install gnupg dpkg-dev wget tar
+    # Get the nvidia drivers which are hidden in the kit used to
+    # image the nano system
+    mkdir /debs2
+    mkdir /download
+    cd /download; wget https://developer.nvidia.com/embedded/dlc/Jetson-210_Linux_R32.2.0-0 mv /download/Jetson-210_Linux_R32.2.0-0 /download/Jetson-210_Linux_R32.2.0_aarch64.tbz2
+    cd /download; tar xjf Jetson-210_Linux_R32.2.0_aarch64.tbz2
+    cp -rf /download/Linux_for_Tegra/nv_tegra/l4t_deb_packages/*.deb /debs2
+    # Make sure we can use all the nvidia debs with apt
+    cd /debs2; dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+    echo "deb file:/debs ./" >> /etc/apt/sources.list
+    echo "deb [trusted=yes] file:/debs2 ./" >> /etc/apt/sources.list
+    apt-key add /debs/7fa2af80.pub
+    apt-get update 
+    # Install the nvidia drivers and nvidia specific packages
+    apt-get install -y nvidia-l4t-cuda cuda-nvtx-10-0 cuda-libraries-dev-10-0 nvidia-l4t-core
+    # Mimic all the commands the nvidia install scripts does
+    ln -s /usr/lib/aarch64-linux-gnu/tegra/libcuda.so.1.1 /usr/lib/aarch64-linux-gnu/tegra/libcuda.so.1
+    ln -s /usr/lib/aarch64-linux-gnu/libcudnn.so.7.3.1 /usr/lib/aarch64-linux-gnu/libcudnn.so
+
+    # Install the app level packages
+    # Rely mainly on pip to install Python packages to avoid 
+    # conflicts that appear when using debs.
+    apt-get -y  install \
+        libwebcam0-dev libwebcam0 libv4l-dev \
+        libgtk3-nocsd0 gtk3-nocsd python3.6 python3.6-dev \
+        libpython3.6-dev python3-pip python3-opencv \
+        python3-matplotlib libhdf5-dev
+    cd /src
+    pip3 install -U setuptools
+    CFLAGS="-I/usr/include/hdf5/serial -L/usr/lib/aarch64-linux-gnu/hdf5/serial/" CPPFLAGS="-I/usr/include/hdf5/serial -L/usr/lib/aarch64-linux-gnu/hdf5/serial/" DF5_DIR=/usr/lib/aarch64-linux-gnu/hdf5/serial/ 
+    pip3 install -U numpy grpcio absl-py py-cpuinfo psutil portpicker six mock requests gast h5py astor termcolor protobuf keras-applications keras-preprocessing wrapt google-pasta
+    
+    sudo pip3 install --pre --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v43 tensorflow
+    
+    # pip3 install tensorflow-estimator==2.1
+    # pip3 install tensorboard==2.1 CFLAGS="-I/usr/include/hdf5/serial" CPPFLAGS="-I/usr/include/hdf5/serial" DF5_DIR=/usr/lib/aarch64-linux-gnu/hdf5/serial/ 
+    # pip3 install --pre --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v42 tensorflow-gpu==2.1
+
+    rm -rf /src
+    rm -rf /debs
+    rm -rf /debs2
+    rm -rf /download
+
+%runscript
+    python3 detection.py
+    #/bin/bash -c 'LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/tegra stdbuf -oL -eL '
+#%startscript
+    #/bin/bash -c 'LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/tegra stdbuf -oL -eL detect_objects'
+
+

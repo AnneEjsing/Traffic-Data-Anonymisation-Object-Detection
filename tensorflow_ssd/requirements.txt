@@ -1,0 +1,7 @@
+aiohttp==3.6.2
+numpy==1.18.1
+six==1.11.0
+contextlib2==0.6.0.post1
+Pillow==7.1.2
+progressbar33==2.4
+protobuf==3.11.3
