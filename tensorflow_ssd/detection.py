@@ -155,10 +155,10 @@ def generate_frames(license_plate_model, face_model):
 
     while success and not stop.is_set():
         # If a new model is present, excahnge this with the old model.
-        if "new_face.pb" in os.listdir(face_model_dir):
+        if "new_face_model.pb" in os.listdir(face_model_dir):
             sp.call(f"mv {face_model_dir}/new_face_model.pb {face_model_dir}/saved_model.pb", shell=True)
             model = load_model()
-        if "new_license_plate.pb" in os.listdir(license_plate_model_dir):
+        if "new_license_plate_model.pb" in os.listdir(license_plate_model_dir):
             sp.call(f"mv {license_plate_model_dir}/new_license_plate_model.pb {license_plate_model_dir}/saved_model.pb", shell=True)
             model = load_model()
 
