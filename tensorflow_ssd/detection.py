@@ -49,14 +49,12 @@ stream = ""
 stop = None
 
 
-def load_model():
-    license_plate_model = tf.saved_model.load(str(license_plate_model_dir), None)
-    license_plate_model = license_plate_model.signatures['serving_default']
+def load_model(model_dir):
+    model = tf.saved_model.load(str(model_dir), None)
+    model = model.signatures['serving_default']
 
-    face_model = tf.saved_model.load(str(face_model_dir), None)
-    face_model = face_model.signatures['serving_default']
+    return model
 
-    return license_plate_model, face_model
 
 def prettify_output_dict(output_dict):
     # All outputs are batches tensors.
@@ -135,7 +133,6 @@ def blur_frame(frame, output_dict):
 def generate_frames(license_plate_model, face_model):
     # Load video file
     vidcap = cv2.VideoCapture(video_path)
-    fps = 10
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     success = True
@@ -157,10 +154,10 @@ def generate_frames(license_plate_model, face_model):
         # If a new model is present, excahnge this with the old model.
         if "new_face_model.pb" in os.listdir(face_model_dir):
             sp.call(f"mv {face_model_dir}/new_face_model.pb {face_model_dir}/saved_model.pb", shell=True)
-            model = load_model()
+            face_model = load_model(face_model_dir)
         if "new_license_plate_model.pb" in os.listdir(license_plate_model_dir):
             sp.call(f"mv {license_plate_model_dir}/new_license_plate_model.pb {license_plate_model_dir}/saved_model.pb", shell=True)
-            model = load_model()
+            license_plate_model = load_model(license_plate_model_dir)
 
         success, frame = vidcap.read()
         annotated_frame = show_inference(
@@ -177,7 +174,8 @@ def start_detection(stream_endpoint, stop_event):
     global stream, stop
     stream = stream_endpoint
     stop = stop_event
-    license_plate_model,face_model = load_model()
+    license_plate_model = load_model(license_plate_model_dir)
+    face_model = load_model(face_model_dir)
     generate_frames(license_plate_model, face_model)
 
 if __name__ == '__main__':
