@@ -1,8 +1,0 @@
-item {
-  name: "license_plate"
-  id: 1
-}
-item {
-  name: "face"
-  id: 2
-}

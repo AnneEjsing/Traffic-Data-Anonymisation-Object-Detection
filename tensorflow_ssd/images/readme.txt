@@ -1,0 +1,1 @@
+In this folder goes the images to train on
