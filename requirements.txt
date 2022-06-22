@@ -2,7 +2,7 @@ aiohttp==3.6.2
 keras_resnet==0.2.0
 lxml==4.2.1
 pycocotools==2.0
-numpy==1.18.1
+numpy==1.22.0
 pandas==0.25.3
 six==1.11.0
 matplotlib==3.2.0
